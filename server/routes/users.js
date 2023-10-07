@@ -10,6 +10,30 @@ import usersController from "./../controlers/usersController.js";
 const router = express.Router();
 
 //controladores
+/**
+
+* @swagger
+
+* /api/v1/users:
+
+*  get:
+
+*      summary: Obtener todos los usuarios
+
+*      tags: [Usuarios]
+
+*/
+
+/***
+ * @swagger
+ * /api/v1/users:
+ * get:
+ * summary: Obtener todos los usuarios
+ * tags: [Usuarios]
+ *
+ *
+ */
+
 router.get("/", usersController.readAll);
 ///exportacion
 export default router;
