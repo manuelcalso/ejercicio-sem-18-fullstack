@@ -1,41 +1,30 @@
 // 1. IMPORTACIONES
-
 // A. LIBRERÍAS
 
 import express from "express";
-
 import cors from "cors";
-
 import dotenv from "dotenv";
-
 import swaggerUI from "swagger-ui-express";
-
 import swaggerJSDoc from "swagger-jsdoc";
-
 import path, { dirname } from "path";
-
 import { fileURLToPath } from "url";
 
 // B. ARCHIVOS
 
 import userRoute from "./routes/users.js";
-
 import carRoute from "./routes/cars.js";
+import pizzaRoute from "./routes/pizzas.js";
 
 // 2. INICIALIZADORES
 
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
-
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
-
 const __dirname = dirname(__filename);
-
 const port = process.env.BASE_URL_PORT || 3005;
 
 const swaggerOptions = {
@@ -63,8 +52,8 @@ const swaggerDocs = swaggerJSDoc(swaggerOptions);
 // DEV: localhost:3005/
 
 app.use("/api/v1/users", userRoute);
-
 app.use("/api/v1/cars", carRoute);
+app.use("/api/v1/pizzas", pizzaRoute);
 
 // B. DOCUMENTACIÓN
 

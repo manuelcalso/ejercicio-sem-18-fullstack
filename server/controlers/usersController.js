@@ -1,13 +1,11 @@
 let data = [
   {
     id: 1,
-
     nombre: "Mike",
   },
 
   {
     id: 2,
-
     nombre: "Ramiro",
   },
 ];
