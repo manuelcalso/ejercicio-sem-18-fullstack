@@ -6,12 +6,11 @@ const router = express.Router();
 
 /**
  * @swagger
- * 
+ *
  * /api/v1/cars:
- * get: 
- * summary: Obtener todos los cars
-
-*      tags: [Cars]
+ *   get:
+ *     summary: Obtener todos los cars
+ *     tags: [Cars]
  */
 
 router.get("/", carsController.readAll);
