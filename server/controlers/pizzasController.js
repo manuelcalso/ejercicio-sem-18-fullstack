@@ -22,7 +22,7 @@ const create = async (req, res) => {
       name,
     });
 
-    res.json({
+    return res.json({
       msg: "pizza creada",
       data: newPizza,
     });
@@ -58,4 +58,25 @@ const readOne = async (req, res) => {
   }
 };
 
-export default { readAll, create, readOne };
+const edit = async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  try {
+    const updatedPizza = await Pizza.findByIdAndUpdate(
+      id,
+      { name },
+      { new: true }
+    );
+    return res.json({
+      msg: "pizza actualizada con exito",
+      data: updatedPizza,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "hubo un error obteniendo los datos",
+    });
+  }
+};
+
+export default { readAll, create, readOne, edit };

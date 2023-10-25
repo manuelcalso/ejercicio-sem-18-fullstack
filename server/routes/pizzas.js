@@ -9,5 +9,7 @@ router.get("/", pizzasController.readAll);
 router.post("/create", pizzasController.create);
 //obtener una pizza
 router.get("/readone/:id", pizzasController.readOne);
+//actualizar una pizza
+router.put("/updateone/:id", pizzasController.edit);
 
 export default router;
