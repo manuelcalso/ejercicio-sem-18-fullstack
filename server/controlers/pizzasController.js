@@ -79,4 +79,28 @@ const edit = async (req, res) => {
   }
 };
 
-export default { readAll, create, readOne, edit };
+const deleteOne = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedPizza = await Pizza.findByIdAndRemove({
+      _id: id,
+    });
+
+    if (deletedPizza === null) {
+      return res.json({
+        msg: "pizza no encontrada o borrada anteriormente",
+      });
+    }
+
+    return res.json({
+      msg: "pizza borrada exitosamente",
+      data: deletedPizza,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "hubo un error obteniendo los datos",
+    });
+  }
+};
+
+export default { readAll, create, readOne, edit, deleteOne };

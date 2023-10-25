@@ -2,15 +2,12 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
-    //LOCAL localhoste:27017
-    //PROD
-    await mongoose.connect(
-      "mongodb+srv://juancallerossol:noQjH02Bxu9elLuB@pizzeriadb.uqyyig4.mongodb.net/pizzeria-db",
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }
-    );
+    //LOCAL BASE_URL_DB_LOCAL
+    //PROD BASE_URL_DB_PRODUCTION
+    await mongoose.connect(process.env.BASE_URL_DB_PRODUCTION, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log("base de datos conectada");
   } catch (error) {
     console.log(error);

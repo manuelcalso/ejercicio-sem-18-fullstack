@@ -11,5 +11,7 @@ router.post("/create", pizzasController.create);
 router.get("/readone/:id", pizzasController.readOne);
 //actualizar una pizza
 router.put("/updateone/:id", pizzasController.edit);
+// borrar una pizza
+router.delete("/deleteone/:id", pizzasController.deleteOne);
 
 export default router;
