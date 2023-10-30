@@ -15,6 +15,7 @@ import userRoute from "./routes/users.js";
 import carRoute from "./routes/cars.js";
 import pizzaRoute from "./routes/pizzas.js";
 import connectDB from "./config/db.js";
+import toppingsRoute from "./routes/toppings.js";
 
 // 2. INICIALIZADORES
 
@@ -57,6 +58,7 @@ const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/cars", carRoute);
 app.use("/api/v1/pizzas", pizzaRoute);
+app.use("/api/v1/toppings", toppingsRoute);
 
 // B. DOCUMENTACIÓN
 

@@ -35,5 +35,11 @@ const router = express.Router();
  */
 
 router.get("/", usersController.readAll);
+router.post("/create", usersController.create);
+
+//autenticar usuario
+router.post("/login", usersController.login);
+//
+
 ///exportacion
 export default router;

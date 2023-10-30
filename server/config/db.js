@@ -4,7 +4,7 @@ const connectDB = async () => {
   try {
     //LOCAL BASE_URL_DB_LOCAL
     //PROD BASE_URL_DB_PRODUCTION
-    await mongoose.connect(process.env.BASE_URL_DB_PRODUCTION, {
+    await mongoose.connect(process.env.BASE_URL_DB_LOCAL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
