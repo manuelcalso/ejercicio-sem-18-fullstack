@@ -16,6 +16,7 @@ import carRoute from "./routes/cars.js";
 import pizzaRoute from "./routes/pizzas.js";
 import connectDB from "./config/db.js";
 import toppingsRoute from "./routes/toppings.js";
+import checkoutRoute from "./routes/checkout.js";
 
 // 2. INICIALIZADORES
 
@@ -59,6 +60,7 @@ app.use("/api/v1/users", userRoute);
 app.use("/api/v1/cars", carRoute);
 app.use("/api/v1/pizzas", pizzaRoute);
 app.use("/api/v1/toppings", toppingsRoute);
+app.use("/api/v1/checkout", checkoutRoute);
 
 // B. DOCUMENTACIÓN
 

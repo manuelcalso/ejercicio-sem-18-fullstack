@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 const readAll = (req, res) => {
   res.json({
     message: "Datos obtenidos con éxito.",
-    data: data,
+    data: User,
   });
 };
 
@@ -38,7 +38,7 @@ const create = async (req, res) => {
     payload,
     process.env.JWT_SECRET,
     {
-      expiresIn: 3600000,
+      expiresIn: "1y",
     },
     (error, token) => {
       if (error) {
@@ -115,8 +115,26 @@ const login = async (req, res) => {
   }
 };
 
+const verifyToken = async (req, res) => {
+  try {
+    console.log("req.user", req.user);
+    const foundUser = await User.findById(req.user.id);
+    console.log("foundUser", foundUser);
+
+    return res.json({
+      msg: "Datos de usuario encontrados.",
+      data: foundUser,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "El usuario no se encontró.",
+    });
+  }
+};
 export default {
   readAll,
   create,
   login,
+  verifyToken,
 };
