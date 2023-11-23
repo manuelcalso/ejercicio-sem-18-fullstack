@@ -118,26 +118,12 @@ const create = async (req, res) => {
     });
   } catch (error) {
     console.log("error", error);
+
+    return res.status(500).json({
+      msg: "Hubo un problema en la creación de la pizza",
+      error,
+    });
   }
-
-  // 3. CREAR PRODUCTO EN BASE DE DATOS CON DATOS DE STRIPE
-  // try {
-  //   const { name } = req.body
-
-  //   const newPizza = await Pizza.create({
-  //     name,
-  //   })
-
-  //   return res.json({
-  //     msg: "Pizza creada",
-  //     data: newPizza,
-  //   })
-  // } catch (error) {
-  //   console.log(error)
-  //   res.status(500).json({
-  //     msg: "Hubo un error obteniendo los datos.",
-  //   })
-  // }
 };
 
 const edit = async (req, res) => {

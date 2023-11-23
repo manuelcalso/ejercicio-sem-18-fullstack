@@ -1,40 +1,50 @@
-//import Cart from "../models/Cart";
+// import Cart from "../models/Cart"
+
+// IMPORTAR STRIPE Y CONFIGURAR CLAVE DE STRIPE
 import stripe from "stripe";
 import dotenv from "dotenv";
+import User from "./../models/User.js";
+import Cart from "../models/Cart.js";
+
 dotenv.config();
-///importar y configurar clave de stripe
+
 const stripeKey = stripe(process.env.STRIPE_SECRET_KEY);
 
 const createCheckoutSession = async (req, res) => {
-  //obtener usuario y id con su correo
   console.log("accediste...");
 
-  const user = {
-    id: 123,
-    email: "juan@hola.com",
-  };
+  // 1. OBTENER EL USUARIO Y SU ID CON CORREO
 
-  //creacion de carrito de compras u obtncion del usuario
+  const userID = req.user.id;
 
-  //creacion de checkout en stripe
-  const line_items = [
-    {
-      price: "price_1O9ZRWAtIcHbNlyg0U91jVWI",
-      quantity: 1,
-    },
-  ];
+  const foundUser = await User.findById(userID).lean();
 
+  const foudCart = await Cart.findById(foundUser.cart).lean().populate();
+  //console.log("foundcart", foudCart);
+
+  //acomodar los datos para stripe
+
+  const line_items = foudCart.products.map((productToBuy) => {
+    return {
+      price: productToBuy.priceID,
+      quantity: productToBuy.quantity,
+    };
+  });
+
+  console.log(stripeKey);
+  //CREACIÓN DE CHECKOUT EN STRIPE
   try {
     const session = await stripeKey.checkout.sessions.create({
       line_items,
       mode: "payment",
       success_url: "https://google.com",
-      cancel_url: "https://yahoo.com.mx",
-      customer_email: user.email,
+      cancel_url: "https://yahoo.com",
+      customer_email: foundUser.email,
     });
+    console.log("session", session);
 
     res.status(200).json({
-      msg: "accede a este link para la sesion de pago",
+      msg: "Accede a este link para la sesión de pago",
       session_url: session.url,
       session,
     });
@@ -47,4 +57,124 @@ const createCheckoutSession = async (req, res) => {
   }
 };
 
-export default { createCheckoutSession };
+// CREAR ORDEN
+// SE VA A RECIBIR UNA PETICIÓN POR STRIPE (NO POR THUNDERCLIENT) EL CUAL VA A INCLUIR
+// TODOS LOS DATOS DE LA ORDEN QUE HIZO EL USUARIO (YA LO PAGÓ) Y NOSOTROS
+// VAMOS A GENERAR EN BASE DE DATOS SU RECIBO.
+const createOrder = async (req, res) => {
+  try {
+    // 1. OBTENER LA FIRMA DE STRIPE SECRETA WEBHOOKS
+    // (SIEMPRE ES ASÍ)
+    const sig = req.headers["stripe-signature"];
+    const endpointSecret = process.env.STRIPE_WH_SIGNING_SECRET;
+    //console.log(sig);
+    //console.log(endpointSecret);
+
+    // 2. CONSTRUIR EL EVENTO CON TODOS LOS DATOS SENSIBLES DE STRIPE
+    // EL EVENTO ES EL OBJETO QUE INCLUYE LOS RECIBOS Y LAS CONFIRMACIONES DE PAGO DEL USUARIO (DE SU ÚLTIMO STRIPE CHECKOUT)
+    let event = stripeKey.webhooks.constructEvent(
+      req.body,
+      sig,
+      endpointSecret
+    );
+
+    //console.log(event);
+
+    // 3. EVALUAMOS EL EVENTO DE STRIPE
+    switch (event.type) {
+      // A. SI EL EVENTO FUE UN CARGO EXITOSO AL USUARIO
+      case "charge.succeeded":
+        // GENERAR VARIABLES PARA ARMAR NUESTRO GUARDADO EN BASE DE DATOS
+        const paymentIntent = event.data.object;
+        //console.log(paymentIntent);
+
+        const email = paymentIntent.billing_details.email;
+        //console.log(email);
+
+        const receiptURL = paymentIntent.receipt_url; // https://receipt.stripe.com/12312/!2312/23123
+        console.log(receiptURL);
+
+        const receiptID = receiptURL
+          .split("/")
+          .filter((item) => item)
+          .pop(); // !2312
+        console.log(receiptID);
+
+        const amount = paymentIntent.amount;
+        //console.log(amount);
+
+        const date_created = paymentIntent.created;
+        //console.log(date_created);
+
+        const paymentDB = await User.findOneAndUpdate(
+          { email },
+          {
+            $push: {
+              receipts: {
+                receiptID,
+                receiptURL,
+                date_created,
+                amount,
+              },
+            },
+          },
+          { new: true }
+        ).lean();
+
+        console.log(paymentDB);
+
+        res.status(200).json({
+          msg: "Datos actualizados con éxito. Pago correcto.",
+        });
+
+        break;
+
+      default:
+        console.log("Evento sin coincidencia.");
+        res.status(200).json({
+          msg: "Evento sin coincidencia",
+        });
+    }
+
+    return;
+  } catch (error) {
+    console.log("error en el manejo de eventos", error);
+    res.status(500).json({
+      msg: "Hubo un problema en la generación de recibos para el usuario.",
+    });
+  }
+};
+
+const editCart = async (req, res) => {
+  const userID = req.user.id;
+
+  try {
+    console.log(userID);
+
+    const foundUser = await User.findById(userID).lean();
+    //console.log(foundUser);
+    const { products } = req.body;
+    //console.log(products);
+
+    const updateCart = await Cart.findOneAndUpdate(
+      foundUser.cart,
+      { products },
+      { new: true }
+    );
+    console.log(updateCart);
+
+    res.status(200).json({
+      msg: "carrito actualizado",
+      updateCart,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "hubo un error en servi",
+    });
+  }
+};
+export default {
+  createOrder,
+  createCheckoutSession,
+  editCart,
+};
